@@ -6,7 +6,7 @@
 '''
 import re
 from typing import List, Tuple, Union
-UNBOUND = float('inf')
+UNBOUND = -1
 '''
 REQUIRED_SEGMENTS = [('MSH', 1, 1),
                     ('SFT', 1, 1),
@@ -51,7 +51,7 @@ def create_regex_pattern(required_segments: List[Tuple]) -> str:
     """
     def convert_count_to_quantifier(min_count: int, max_count: Union[int, float]) -> str:
         """Convert min/max counts to regex quantifier"""
-        if max_count == float('inf'):
+        if max_count == UNBOUND:
             return f'{{{min_count},}}'
         elif min_count == max_count:
             return f'{{{min_count}}}'
@@ -91,7 +91,8 @@ def check_segments(segment_list: List[str]) -> bool:
     
     # Create regex pattern
     pattern = create_regex_pattern(REQUIRED_SEGMENTS)
-    print(f"pattern: {pattern}")
+    # print(f"pattern: {pattern}")
+    
     # Match pattern against segment string
     return bool(re.match(pattern, segment_string))
 

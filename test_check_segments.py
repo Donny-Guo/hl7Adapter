@@ -31,7 +31,17 @@ class TestCheckSegments(unittest.TestCase):
         result = check_segments(segment_name_list)
         self.assertEqual(result, 1)
 
-    
+    def test_parent_child_reporting(self):
+        segment_name_list = ['MSH', 'SFT', 'PID', 'ORC', 'OBR', 'OBX', 'SPM', 'OBR', 'OBX', 'OBX', 'OBX', 'SPM']
+        result = check_segments(segment_name_list)
+        self.assertEqual(result, 1)
+
+    def test_parent_child_reporting2(self):
+        segment_name_list = ['MSH', 'SFT', 'PID', 'ORC', 'OBR', 'OBX','OBX', 'SPM',
+                              'OBR', 'OBX', 'OBX', 'OBX', 'SPM',
+                              'OBR', 'OBX', 'OBX', 'OBX', 'SPM']
+        result = check_segments(segment_name_list)
+        self.assertEqual(result, 1)
 
 if __name__ == "__main__":
     unittest.main()
