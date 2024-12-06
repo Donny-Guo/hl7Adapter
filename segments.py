@@ -21,7 +21,77 @@ class MSH:
         output = [errors, warnings]
         # split
         fields = self.text.split('|')
+        fields.insert(0, '') # handle index off by 1
         fields_count = len(fields) - 1
+
+        # check MSH-4 Sending Facility
+        if 4 > fields_count or not fields[4]:
+            errors.append("Missing Sending Facility (MSH-4).")
+        else:
+            components = fields[4].split('^')
+            components_count = len(components) - 1
+
+            # check MSH-4-1 Reporting Facility Name (must not exceed 20 characters)
+            if not components[0]:
+                errors.append("Missing Reporting Facility Name (MSH-4-1).")
+            else:
+                if len(components[0]) > 20:
+                    warnings.append("Invalid Reporting Facility Name (MSH-4-1): {components[0]}, must not exceed 20 characters.")
+
+            # check MSH-4-2 Facility CLIA
+            if 1 > components_count or not components[1]:
+                errors.append("Missing Facility CLIA (MSH-4-2).")
+            else:
+                pass # add more checking later
+
+        
+        # check MSH-7 Date and Time of Message: YYYYMMDDHHMMSS (GMT-offset is optional: -7000)
+        if 7 > fields_count or not fields[7]:
+            errors.append("Missing Date and Time of Message (MSH-7).")
+        else:
+            isValid = False
+            for format in ["%Y%m%d%H%M%S", "%Y%m%d%H%M%S%z"]:
+                try:
+                    datetime.strptime(fields[7], format)
+                    isValid = True
+                    break
+                except:
+                    continue
+            if not isValid:
+                errors.append(f"Invalid Date and Time of Message (MSH-7): {fields[7]}, should be in the format of YYYYMMDDHHMMSS (GMT-offset is optional).")
+        
+
+        # check MSH-10 Message Control ID
+        if 10 > fields_count or not fields[10]:
+            errors.append("Missing Message Control ID (MSH-10).")
+        else:
+            pass # add more checking later
+
+
+        # check MSH-12 Version ID
+        if 12 > fields_count or not fields[12]:
+            errors.append("Missing Message Version ID (MSH-12).")
+        else:
+            components = fields[12].split('^')
+            components_count = len(components) - 1
+
+            # check MSH-12-1 HL7 version number (2.5.1 or higher)
+            if not components[0]:
+                errors.append("Missing HL7 version number (MSH-12-1).")
+            else:
+                # check if version number is 2.5.1 or higher
+                version_list = components[0].split('.')
+                try:
+                    if ((len(version_list) == 2 and version_list[0] == "2" and int(version_list[1]) > 5)
+                        or (len(version_list) == 3 and version_list[0] == "2" and int(version_list[1]) == 5 and int(version_list[2]) >= 1)
+                        or (len(version_list) == 3 and version_list[0] == "2" and int(version_list[1]) > 5) ):
+                        pass 
+                    else:
+                        errors.append("Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
+                except:
+                    errors.append("Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
+
+        return output
 
 class SFT:
     def __init__(self, text):
@@ -41,11 +111,23 @@ class SFT:
         fields = self.text.split('|')
         fields_count = len(fields) - 1
 
+        # check SFT-1 Software Vendor Organiation
+        if 1 > fields_count or not fields[1]:
+            errors.append("Missing Software Vendor Organiation (SFT-1).")
+        else:
+            pass # add more checking later
+
+        # check SFT-3 Software Product Name
+        if 3 > fields_count or not fields[3]:
+            errors.append("Missing Software Product Name (SFT-3).")
+        else:
+            pass # add more checking later
+
+        return output
+
 class PID:
     def __init__(self, text):
-        self.text = text
-
-        
+        self.text = text  
     
     def validate(self) -> List[List[str]]:
         '''
@@ -84,7 +166,9 @@ class PID:
         if 7 > fields_count or not fields[7]:
             errors.append("Missing Patient Date of Birth (PID-7).")
         else:
-            if not datetime.strptime(fields[7], "%Y%m%d"):
+            try:
+                datetime.strptime(fields[7], "%Y%m%d")
+            except:
                 errors.append(f"Invalid Patient Date of Birth: {fields[7]}, should be in the format of YYYYMMDD")
 
 
@@ -216,11 +300,11 @@ class OBR:
             if fields[25] not in ['F', 'P', 'C']:
                 errors.append(f"Invalid Result Status (OBR-25): {fields[25]}, should be either F, P, or C.")
 
-        # check OBR-31 Reason for Study: Use ICD-10 Diagnosis Code
-        if 31 > fields_count or not fields[31]:
-            errors.append("Missing Reason for Study (OBR-31).")
-        else:
-            pass # add more checking later
+        # # check OBR-31 Reason for Study: Use ICD-10 Diagnosis Code
+        # if 31 > fields_count or not fields[31]:
+        #     errors.append("Missing Reason for Study (OBR-31).")
+        # else:
+        #     pass # add more checking later
 
         return output
 
@@ -342,7 +426,9 @@ class OBX:
         if 19 > fields_count or not fields[19]:
             errors.append("Missing Test Resulted Date and Time (OBX-19).")
         else:
-            if not datetime.strptime(fields[19], "%Y%m%d%H%M%S"):
+            try:
+                datetime.strptime(fields[19], "%Y%m%d%H%M%S")
+            except:
                 errors.append(f"Invalid Test Resulted Date and Time (OBX-19): {fields[19]}, should be in the format of YYYYMMDDHHMMSS.")
 
 
@@ -429,43 +515,66 @@ class SPM:
                 pass # add more checking later
 
 
-        # check SPM-8 Specimen Source Site
-        if 8 > fields_count or not fields[8]:
-            errors.append("Missing Specimen Source Site (SPM-8).")
-        else:
-            components = fields[8].split('^')
-            components_count = len(components) - 1
+        # # check SPM-8 Specimen Source Site (optional)
+        # if 8 > fields_count or not fields[8]:
+        #     errors.append("Missing Specimen Source Site (SPM-8).")
+        # else:
+        #     components = fields[8].split('^')
+        #     components_count = len(components) - 1
 
-            # check SPM-8-1 SNOMED Code for Specimen Source Site (CAN CHECK WITH TABLE)
-            if not components[0]:
-                errors.append("Missing SNOMED Code for Specimen Source Site (SPM-8-1).")
-            else:
-                pass # add more checking later
+        #     # check SPM-8-1 SNOMED Code for Specimen Source Site (CAN CHECK WITH TABLE)
+        #     if not components[0]:
+        #         errors.append("Missing SNOMED Code for Specimen Source Site (SPM-8-1).")
+        #     else:
+        #         pass # add more checking later
 
-            # check SPM-8-2 Speciment source site text description
-            if 1 > components_count or not components[1]:
-                errors.append("Missing Speciment source site text description (SPM-8-2).")
-            else:
-                pass # add more checking later
+        #     # check SPM-8-2 Speciment source site text description
+        #     if 1 > components_count or not components[1]:
+        #         errors.append("Missing Speciment source site text description (SPM-8-2).")
+        #     else:
+        #         pass # add more checking later
 
 
         # check SPM-17 Specimen Collected Date and Time: YYYYMMDDHHMMSS
         if 17 > fields_count or not fields[17]:
             errors.append("Missing Specimen Collected Date and Time (SPM-17).")
         else:
-            if not datetime.strptime(fields[17], "%Y%m%d%H%M%S"):
+            try:
+                datetime.strptime(fields[17], "%Y%m%d%H%M%S")
+            except:
                 errors.append(f"Invalid Specimen Collected Date and Time (SPM-17): {fields[17]}, should be in the format of YYYYMMDDHHMMSS.")
 
         # check SPM-18 Specimen Received Date and Time: YYYYMMDDHHMMSS
         if 18 > fields_count or not fields[18]:
             errors.append("Missing Specimen Received Date and Time (SPM-18).")
         else:
-            if not datetime.strptime(fields[18], "%Y%m%d%H%M%S"):
+            try:
+                datetime.strptime(fields[18], "%Y%m%d%H%M%S")
+            except:
                 errors.append(f"Invalid Specimen Received Date and Time (SPM-18): {fields[18]}, should be in the format of YYYYMMDDHHMMSS.")
 
         return output        
 
 if __name__ == "__main__":
+
+    # test MSH class
+    print("test MSH class")
+    msh_text = "MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
+    msh = MSH(msh_text)
+    errors, warnings = msh.validate()
+    print(f"errors: {errors}")
+    print(f"warnings: {warnings}")
+    print('-' * 100)
+
+    # test SFT class
+    print("test SFT class")
+    sft_text = "SFT|XL2HL7 Conversion|1.0|CalREDIE XC|1.0||20240105"
+    sft = SFT(sft_text)
+    errors, warnings = sft.validate()
+    print(f"errors: {errors}")
+    print(f"warnings: {warnings}")
+    print('-' * 100)
+
     # test PID class
     print("test PID class")
     pid_text = "PID|1||8675309||Test^Rick^A||20200202|F||2033-9|1234 Main Ln.^^Sacramento^CA^95814||^PRN^PH^^1^916^1234567|||||||||H|"
