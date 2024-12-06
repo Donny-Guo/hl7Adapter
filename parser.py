@@ -4,6 +4,7 @@
 3. check if there's missing segments
 
 '''
+from segments import MSH, SFT, PID, ORC, OBR, OBX, SPM
 import re
 from typing import List, Tuple, Union
 UNBOUND = -1
@@ -114,6 +115,22 @@ def segment_message(message: str, sep='\n') -> List[List[str]]:
     segment_name_list = [segment.split('|')[0].strip() for segment in segment_list]
     return [segment_list, segment_name_list]
 
+def validate_message(message: str) -> List[List[str]]:
+    errors, warnings = [], []
+    output = [errors, warnings]
+    segment_list, segment_name_list = segment_message(message)
+    result = check_segments(segment_name_list)
+
+    if not result:
+        errors.append("Invalid Message: Missing essential segments, should have all the following segments: MSH, SFT, PID, ORC, OBR, OBX, and SPM.")
+    else:
+        for segment_name, segment_text in zip(segment_name_list, segment_list):
+            x = globals()[segment_name](segment_text)
+            temp_errors, temp_warnings = x.validate()
+            errors.extend(temp_errors)
+            warnings.extend(temp_warnings)
+
+    return output
 
 def main():
     message = '''MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO
@@ -124,13 +141,11 @@ OBR|1|Gon1001^Test Lab^99999^CLIA|Gon1001|21416-3N. gonorrhoeae DNA NAA+probe Ql
 OBX|1|CE|21416-3^N. gonorrhoeae DNA NAA+probe Ql (U)||260373001^Detected||NEG|A^Abnormal|||F|||20240228101533|||^Roche cobas® 8800 System||20240229092624||||ARUP^^^^^^^^^46D0523979|2023 Floyd Ave^Salt Lake City^UT^84108||||||
 SPM|1|^8675309|| ^Body fluid sample|||||||||||||20240228101533|20240228110000|||||||||||
 '''
-
-    segment_list, segment_name_list = segment_message(message)
-    # print(f"segment_list: {segment_list}")
-    # print(f"segment_name_list: {segment_name_list}")
-
-    result = check_segments(segment_name_list)
-    return
+    
+    errors, warnings = validate_message(message)
+    print(f"errors: {errors}")
+    print(f"warnings: {warnings}")
 
 if __name__ == "__main__":
     main()
+    

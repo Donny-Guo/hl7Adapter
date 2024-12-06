@@ -36,7 +36,7 @@ class MSH:
                 errors.append("Missing Reporting Facility Name (MSH-4-1).")
             else:
                 if len(components[0]) > 20:
-                    warnings.append("Invalid Reporting Facility Name (MSH-4-1): {components[0]}, must not exceed 20 characters.")
+                    warnings.append(f"Invalid Reporting Facility Name (MSH-4-1): {components[0]}, must not exceed 20 characters.")
 
             # check MSH-4-2 Facility CLIA
             if 1 > components_count or not components[1]:
@@ -45,7 +45,7 @@ class MSH:
                 pass # add more checking later
 
         
-        # check MSH-7 Date and Time of Message: YYYYMMDDHHMMSS (GMT-offset is optional: -7000)
+        # check MSH-7 Date and Time of Message: YYYYMMDDHHMMSS (GMT-offset is optional: -0700)
         if 7 > fields_count or not fields[7]:
             errors.append("Missing Date and Time of Message (MSH-7).")
         else:
@@ -87,9 +87,9 @@ class MSH:
                         or (len(version_list) == 3 and version_list[0] == "2" and int(version_list[1]) > 5) ):
                         pass 
                     else:
-                        errors.append("Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
+                        errors.append(f"Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
                 except:
-                    errors.append("Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
+                    errors.append(f"Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
 
         return output
 
@@ -560,6 +560,7 @@ if __name__ == "__main__":
     # test MSH class
     print("test MSH class")
     msh_text = "MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
+    msh_text = "MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO||CalRedie|CDPH|20241030100306-0700||ORU^R01^ORU_R01||P|2.7.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
     msh = MSH(msh_text)
     errors, warnings = msh.validate()
     print(f"errors: {errors}")
