@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL7 Validator</title>
+</head>
+
+<body>
+    <h1>Paste HL7 message below</h1>
+    <form method="post">
+        <textarea id="user_input" name="user_input" rows="18" cols="120"
+            placeholder="MSH|...">{{user_input}}</textarea><br>
+        <button type="submit">Validate</button>
+        <button type="button" id="clear_button" onclick="clearText()"">Clear</button>
+    </form>
+    <h2>Result:</h2>
+    <pre id="result">{{ output }}</pre>
+
+            <script>
+                function clearText() {
+                    document.getElementById("user_input").value = "";
+                    document.getElementById("result").textContent = "";
+                }
+            </script>
+</body>
+
+</html>

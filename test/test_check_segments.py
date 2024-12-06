@@ -1,4 +1,4 @@
-from parser import check_segments
+from hl7.parser import check_segments
 import unittest
 
 class TestCheckSegments(unittest.TestCase):
