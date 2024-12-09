@@ -17,7 +17,11 @@ Activate virtual environment env:
 To install it by the following command:
 
 ```
+# If you don't want to make changes to current code later
 pip install .
+
+# if you want to make changes and test results quickly
+pip install -e .
 ```
 
 To run it:

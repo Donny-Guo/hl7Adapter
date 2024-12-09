@@ -111,7 +111,7 @@ def segment_message(message: str, sep='\n') -> List[List[str]]:
             segment_list (List[str]): A list of segments
             segment_name_list (List[str]): A list of segment names
     '''
-    segment_list = message.strip(sep).split(sep)
+    segment_list = message.strip('\n\r').split(sep).strip('\n\r')
     segment_name_list = [segment.split('|')[0].strip() for segment in segment_list]
     return [segment_list, segment_name_list]
 
