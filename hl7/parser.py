@@ -111,7 +111,8 @@ def segment_message(message: str, sep='\n') -> List[List[str]]:
             segment_list (List[str]): A list of segments
             segment_name_list (List[str]): A list of segment names
     '''
-    segment_list = message.strip('\n\r').split(sep).strip('\n\r')
+    segment_list = message.strip('\n\r').split(sep)
+    segment_list = [segment.strip('\r') for segment in segment_list]
     segment_name_list = [segment.split('|')[0].strip() for segment in segment_list]
     return [segment_list, segment_name_list]
 
@@ -125,15 +126,16 @@ def parse_message(message: str) -> List[List[str]]:
         errors.append("Invalid Message: Missing essential segments, should have all the following segments: MSH, SFT, PID, ORC, OBR, OBX, and SPM.")
     else:
         for segment_name, segment_text in zip(segment_name_list, segment_list):
-            x = globals()[segment_name](segment_text)
-            temp_errors, temp_warnings = x.validate()
-            errors.extend(temp_errors)
-            warnings.extend(temp_warnings)
+            if segment_name in ['MSH', 'SFT', 'PID', 'ORC', 'OBR', 'OBX', 'SPM']:
+                x = globals()[segment_name](segment_text)
+                temp_errors, temp_warnings = x.validate()
+                errors.extend(temp_errors)
+                warnings.extend(temp_warnings)
 
     return output
 
 def main():
-    message = '''MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO
+    message = r'''MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO
 SFT|XL2HL7 Conversion|1.0|CalREDIE XC|1.0||20240105
 PID|1||8675309||Test^Rick^A||20200202|M||2033-9|1234 Main Ln.^^Sacramento^CA^95814||^PRN^PH^^1^916^1234567|||||||||H|
 ORC|RE|Gon1001^Test Lab^99999^CLIA|Doctor|||||||||NPI123456^Doctor^Doctor|||||||||Test Lab^^^^^^^^^99999|123 That Street St.^^Sacramento^CA^95814^^B|^WPN^PH^^^337^3373377|123 That Street St.^^Sacramento^CA^95814|||||||

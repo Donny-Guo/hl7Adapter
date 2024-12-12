@@ -29,17 +29,18 @@ class MSH:
             errors.append("Missing Sending Facility (MSH-4).")
         else:
             components = fields[4].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check MSH-4-1 Reporting Facility Name (must not exceed 20 characters)
-            if not components[0]:
+            if 1 > components_count or not components[1]:
                 errors.append("Missing Reporting Facility Name (MSH-4-1).")
             else:
-                if len(components[0]) > 20:
-                    warnings.append(f"Invalid Reporting Facility Name (MSH-4-1): {components[0]}, must not exceed 20 characters.")
+                if len(components[1]) > 20:
+                    warnings.append(f"Invalid Reporting Facility Name (MSH-4-1): {components[1]}, must not exceed 20 characters.")
 
             # check MSH-4-2 Facility CLIA
-            if 1 > components_count or not components[1]:
+            if 2 > components_count or not components[2]:
                 errors.append("Missing Facility CLIA (MSH-4-2).")
             else:
                 pass # add more checking later
@@ -73,23 +74,24 @@ class MSH:
             errors.append("Missing Message Version ID (MSH-12).")
         else:
             components = fields[12].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check MSH-12-1 HL7 version number (2.5.1 or higher)
-            if not components[0]:
+            if 1 > components_count or not components[1]:
                 errors.append("Missing HL7 version number (MSH-12-1).")
             else:
                 # check if version number is 2.5.1 or higher
-                version_list = components[0].split('.')
+                version_list = components[1].split('.')
                 try:
                     if ((len(version_list) == 2 and version_list[0] == "2" and int(version_list[1]) > 5)
                         or (len(version_list) == 3 and version_list[0] == "2" and int(version_list[1]) == 5 and int(version_list[2]) >= 1)
                         or (len(version_list) == 3 and version_list[0] == "2" and int(version_list[1]) > 5) ):
                         pass 
                     else:
-                        errors.append(f"Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
+                        errors.append(f"Invalid HL7 version number (MSH-12-1): {components[1]}, should be 2.5.1 or higher.")
                 except:
-                    errors.append(f"Invalid HL7 version number (MSH-12-1): {components[0]}, should be 2.5.1 or higher.")
+                    errors.append(f"Invalid HL7 version number (MSH-12-1): {components[1]}, should be 2.5.1 or higher.")
 
         return output
 
@@ -148,17 +150,23 @@ class PID:
             errors.append("Missing Patient Name (PID-5).")
         else:
             components = fields[5].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
+
             # check PID-5.1 Last Name
-            if not components[0]:
-                errors.append("Missing Patient Last Name (PID-5-1).")
-            elif not components[0].isalpha():
-                warnings.append("Patient Last Name contains non-ASCII characters.")
-            # check PID-5.2 First Name
             if 1 > components_count or not components[1]:
+                errors.append("Missing Patient Last Name (PID-5-1).")
+            else:
+                if not components[1].isalpha():
+                    warnings.append("Patient Last Name contains non-ASCII characters.")
+
+            # check PID-5.2 First Name
+            if 2 > components_count or not components[2]:
                 errors.append("Missing Patient First Name (PID-5-2).")
-            elif not components[1].isalpha():
-                warnings.append("Patient First Name contains non-ASCII characters.")
+            else:
+                if not components[2].isalpha():
+                    warnings.append("Patient First Name contains non-ASCII characters.")
+                    
             # check PID-5.3 Middle Name (don't care for now)
 
 
@@ -347,16 +355,17 @@ class OBX:
             errors.append("Missing Observation Identifier (OBX-3).")
         else:
             components = fields[3].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check OBX-3-1 Lab Test LOINC code
-            if not components[0]:
+            if 1 > components_count or not components[1]:
                 errors.append("Missing Lab Test LOINC code (OBX-3-1).")
             else:
                 pass # add checking LOINC code with tables later
 
             # check OBX-3-2 Lab Test Name
-            if 1 > components_count or not components[1]:
+            if 2 > components_count or not components[2]:
                 errors.append("Missing Lab Test Name (OBX-3-2).")
             else:
                 pass # add more checking later
@@ -367,16 +376,17 @@ class OBX:
             errors.append("Missing Observation Value (OBX-5).")
         else:
             components = fields[5].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check OBX-5-1 Lab Result Observation Value Code
-            if not components[0]:
+            if 1 > components_count or not components[1]:
                 errors.append("Missing Lab Result Observation Value Code (OBX-5-1).")
             else:
                 pass # add more checking later
 
             # check OBX-5-2 Lab Result Observation Value Text Description
-            if 1 > components_count or not components[1]:
+            if 2 > components_count or not components[2]:
                 errors.append("Missing Lab Result Observation Value Text Description (OBX-5-2).")
             else:
                 pass # add more checking later
@@ -437,16 +447,17 @@ class OBX:
             errors.append("Missing Performing Organization Name (OBX-23).")
         else:
             components = fields[23].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check OBX-23-1 Performing Organization Name
-            if not components[0]:
+            if 1 > components_count or not components[1]:
                 errors.append("Missing Performing Organization Name (OBX-23-1).")
             else:
                 pass # add more checking later
 
             # check OBX-23-10 Performing Organization CLIA
-            if 9 > components_count or not components[9]:
+            if 10 > components_count or not components[10]:
                 errors.append("Missing Performing Organization CLIA (OBX-23-10).")
             else:
                 pass # add checking CLIA later
@@ -483,15 +494,19 @@ class SPM:
             errors.append("Missing Specimen ID (SPM-2).")
         else:
             components = fields[2].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check SPM-2-2 Filler Assigned Identifier existed
-            if 1 > components_count or not components[1]:
+            if 2 > components_count or not components[2]:
                 errors.append("Missing Filler Assigned Identifier (SPM-2-2).")
             else:
-                subcomponents = components[1].split('&')
+                subcomponents = components[2].split('&')
+                subcomponents.insert(0, '') # handle index off by 1
+                subcomponents_count = len(subcomponents) - 1
+
                 # check SPM-2-2-1 Accession Number (required)
-                if not subcomponents[0]:
+                if 1 > subcomponents_count or not subcomponents[1]:
                     errors.append("Missing Accession Number (SPM-2-2-1).")
 
 
@@ -500,16 +515,17 @@ class SPM:
             errors.append("Missing Specimen Type (SPM-4).")
         else:
             components = fields[4].split('^')
+            components.insert(0, '') # handle index off by 1
             components_count = len(components) - 1
 
             # check SPM-4-1 Specimen Type or Material SNOMED code (CAN CHECK WITH TABLE)
-            if not components[0]:
+            if 1 > components_count or not components[1]:
                 errors.append("Missing Specimen Type or Material SNOMED code (SPM-4-1).")
             else:
                 pass # add more checking later
 
             # check SPM-4-2 Specimen Type or Material Text Description
-            if 1 > components_count or not components[1]:
+            if 2 > components_count or not components[2]:
                 errors.append("Missing Specimen Type or Material Text Description (SPM-4-2).")
             else:
                 pass # add more checking later
@@ -520,16 +536,17 @@ class SPM:
         #     errors.append("Missing Specimen Source Site (SPM-8).")
         # else:
         #     components = fields[8].split('^')
+        #     components.insert(0, '') # handle index off by 1
         #     components_count = len(components) - 1
 
         #     # check SPM-8-1 SNOMED Code for Specimen Source Site (CAN CHECK WITH TABLE)
-        #     if not components[0]:
+        #     if 1 > components_count or not components[1]:
         #         errors.append("Missing SNOMED Code for Specimen Source Site (SPM-8-1).")
         #     else:
         #         pass # add more checking later
 
         #     # check SPM-8-2 Speciment source site text description
-        #     if 1 > components_count or not components[1]:
+        #     if 2 > components_count or not components[2]:
         #         errors.append("Missing Speciment source site text description (SPM-8-2).")
         #     else:
         #         pass # add more checking later
@@ -559,8 +576,8 @@ if __name__ == "__main__":
 
     # test MSH class
     print("test MSH class")
-    msh_text = "MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
-    msh_text = "MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO||CalRedie|CDPH|20241030100306-0700||ORU^R01^ORU_R01||P|2.7.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
+    msh_text = r"MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO|Test Lab^99999^CLIA|CalRedie|CDPH|20241030100306||ORU^R01^ORU_R01|103|P|2.5.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
+    # msh_text = "MSH|^~\&|XL2HL7^1.10.100.1.111111.1.101^ISO||CalRedie|CDPH|20241030100306-0700||ORU^R01^ORU_R01||P|2.7.1|||NE|NE|||||PHLabReport-NoAck^^^ISO"
     msh = MSH(msh_text)
     errors, warnings = msh.validate()
     print(f"errors: {errors}")
