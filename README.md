@@ -1,4 +1,4 @@
-# hl7Adapter
+# HL7 Web Validator
 ## Installation
 
 Set up python virtual environment:
@@ -14,7 +14,7 @@ Activate virtual environment env:
 .\env\Scripts\Activate.ps1
 ```
 
-To install it by the following command:
+To install it by the following command (make sure you are under the directory with "pyproject.toml"):
 
 ```
 # If you don't want to make changes to current code later
@@ -37,13 +37,13 @@ You can also choose to use development server (werkzeug) or production server (w
 
 ```python
 # app.run(host=host, port=port) # use dev server
-serve(app, host=host, port=port) # use prod server
+serve(app, host=host, port=port) # use prod server (default)
 ```
 
 
 
-## Package
-To package all files to one executable, [pyinstaller](https://github.com/pyinstaller/pyinstaller) is used in this project. Be sure to read [this](https://pyinstaller.org/en/stable/operating-mode.html) to understand the limitation of pyinstaller.
+## Packaging
+To package all files to one executable file, [pyinstaller](https://github.com/pyinstaller/pyinstaller) is used in this project. Be sure to read [this](https://pyinstaller.org/en/stable/operating-mode.html) to understand the limitation of pyinstaller.
 To package it:
 
 
@@ -54,3 +54,26 @@ pyinstaller --onefile --hidden-import werkzeug --add-data ".\flask\templates:tem
 # prod server
 pyinstaller --onefile --hidden-import waitress --add-data ".\flask\templates:templates" --add-data "hl7:hl7" .\flask\app.py
 ```
+
+You will find the executable ("app.exe") under the "dist" directory.
+
+
+
+## Project Structure
+
+```
+project-root/
+├── flask/                 # Source code for web app
+│   ├── templates/         # Web page templates
+|		└── index.html     # Web page
+|	└── app.py			   # Flask Web app
+├── hl7/                   # Source code for validation
+│   ├── parser.py		   # Message parsing
+│   └── segments.py		   # HL7 class definitions
+├── dist/                  # packaged exe
+├── LICENSE                # Project License Information
+├── .gitignore             # Git ignore rules
+├── pyproject.toml         # Project metadata and dependencies
+└── README.md              # Project documentation
+```
+
